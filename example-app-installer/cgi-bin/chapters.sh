@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-path="~/.local/share/mybible/"
+path="$HOME/.local/share/mybible/"
 
 long_name=$(sed "s/'/''/g" <<<"$2")
 echo "http://localhost:1121/rofi?script=verses.sh&arg=$1&arg=$2"
