@@ -32,7 +32,6 @@ func main() {
 		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/cgi-bin/chapters.sh",
 		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/cgi-bin/verses.sh",
 		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/cgi-bin/display.sh",
-		// add more scripts here
 	}
 
 	usr, err := user.Current()
@@ -40,24 +39,31 @@ func main() {
 		panic(err)
 	}
 
+	// --- SQLite DB creation ---
 	dbTargetDir := filepath.Join(usr.HomeDir, ".local", "share", "mybible")
 	if err := os.MkdirAll(dbTargetDir, 0o755); err != nil {
 		panic(err)
 	}
 
 	for _, url := range sqlURLs {
-		fmt.Println("Fetching SQL:", url)
+		fileName := path.Base(url)
+		dbName := strings.TrimSuffix(fileName, ".sql")
+		dbPath := filepath.Join(dbTargetDir, dbName)
+
+		// Skip existing DBs
+		if _, err := os.Stat(dbPath); err == nil {
+			fmt.Println("✔ Skipping, DB exists:", dbPath)
+			continue
+		}
+
+		fmt.Println("⬇ Downloading SQL:", url)
 		sqlText, err := fetchText(url)
 		if err != nil {
 			fmt.Println("Download error:", err)
 			continue
 		}
 
-		fileName := path.Base(url)
-		dbName := strings.TrimSuffix(fileName, ".sql")
-		dbPath := filepath.Join(dbTargetDir, dbName)
-
-		fmt.Println("Creating DB:", dbPath)
+		fmt.Println("⚙ Creating DB:", dbPath)
 		if err := runSQLOnDB(dbPath, sqlText); err != nil {
 			fmt.Println("DB error:", err)
 		} else {
@@ -65,17 +71,27 @@ func main() {
 		}
 	}
 
+	// --- Script download ---
 	cgiDir := filepath.Join(usr.HomeDir, ".cgi-bin")
 	if err := os.MkdirAll(cgiDir, 0o755); err != nil {
 		panic(err)
 	}
 
 	for _, url := range scriptURLs {
-		fmt.Println("Fetching script:", url)
-		if err := downloadFile(url, cgiDir, 0o755); err != nil {
+		fileName := path.Base(url)
+		targetPath := filepath.Join(cgiDir, fileName)
+
+		// Skip existing scripts
+		if _, err := os.Stat(targetPath); err == nil {
+			fmt.Println("✔ Skipping, script exists:", targetPath)
+			continue
+		}
+
+		fmt.Println("⬇ Downloading script:", url)
+		if err := downloadFile(url, targetPath, 0o755); err != nil {
 			fmt.Println("Script error:", err)
 		} else {
-			fmt.Println("✔ Script saved to", cgiDir)
+			fmt.Println("✔ Script saved:", targetPath)
 		}
 	}
 }
@@ -106,7 +122,7 @@ func runSQLOnDB(dbPath, sqlText string) error {
 	return err
 }
 
-func downloadFile(url, targetDir string, perm os.FileMode) error {
+func downloadFile(url, targetPath string, perm os.FileMode) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -115,9 +131,6 @@ func downloadFile(url, targetDir string, perm os.FileMode) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("bad HTTP status: %s", resp.Status)
 	}
-	// filename from URL path
-	fileName := path.Base(url)
-	targetPath := filepath.Join(targetDir, fileName)
 
 	out, err := os.Create(targetPath)
 	if err != nil {
@@ -128,6 +141,7 @@ func downloadFile(url, targetDir string, perm os.FileMode) error {
 	if _, err := io.Copy(out, resp.Body); err != nil {
 		return err
 	}
+
 	if err := os.Chmod(targetPath, perm); err != nil {
 		return err
 	}
