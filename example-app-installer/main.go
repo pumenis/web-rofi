@@ -16,12 +16,12 @@ import (
 func main() {
 	// Direct RAW URLs to SQL files from your GitHub repo
 	sqlURLs := []string{
-		"https://raw.githubusercontent.com/pumenis/web-rofi/refs/heads//example-app-installer/modules/ELZ.SQLite3.sql",
-		"https://raw.githubusercontent.com/pumenis/web-rofi/refs/heads//example-app-installer/modules/KJV.SQLite3.sql",
-		"https://raw.githubusercontent.com/pumenis/web-rofi/refs/heads//example-app-installer/modules/MNB.SQLite3.sql",
-		"https://raw.githubusercontent.com/pumenis/web-rofi/refs/heads//example-app-installer/modules/OGB.SQLite3.sql",
-		"https://raw.githubusercontent.com/pumenis/web-rofi/refs/heads//example-app-installer/modules/NTPT.SQLite3.sql",
-		"https://raw.githubusercontent.com/pumenis/web-rofi/refs/heads//example-app-installer/modules/RST.SQLite3.sql",
+		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/modules/ELZ.SQLite3.sql",
+		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/modules/RST.SQLite3.sql",
+		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/modules/OGB.SQLite3.sql",
+		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/modules/NTPT.SQLite3.sql",
+		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/modules/KJV.SQLite3.sql",
+		"https://github.com/pumenis/web-rofi/raw/refs/heads/main/example-app-installer/modules/MNB.SQLite3.sql",
 	}
 
 	// Find home dir
