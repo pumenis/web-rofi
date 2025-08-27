@@ -45,7 +45,7 @@ func main() {
 		}
 
 		_, file := filepath.Split(url)
-		dbName := strings.TrimSuffix(file, ".sql") + ".db"
+		dbName := strings.TrimSuffix(file, ".sql")
 		dbPath := filepath.Join(targetDir, dbName)
 
 		fmt.Println("Creating DB:", dbPath)
